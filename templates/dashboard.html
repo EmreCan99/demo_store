@@ -1,0 +1,77 @@
+<!--
+    dashboard.html
+
+    This is a Jinja2 template -- Python's equivalent of an EJS/Pug template in Node.
+    {{ variable }} syntax inserts a Python value passed in from main.py.
+    Here, {{ chart_html | safe }} inserts the Plotly chart's HTML directly.
+    ("| safe" tells Jinja2 "don't escape this, it's real HTML, not plain text")
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard</title>
+    <style>
+        /* Reset default browser spacing so we control layout precisely */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* System font stack -- loads instantly, no external font request needed */
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+            background-color: #14161a;   /* dark slate background, not pure black */
+            color: #e6e8eb;              /* soft off-white text, easier on the eyes than pure white */
+            padding: 40px;
+        }
+
+        header {
+            /* Separates the page title from the chart below it with a thin rule,
+               rather than a heavy card border -- keeps it feeling like a real
+               internal tool rather than a template. */
+            border-bottom: 1px solid #2a2d33;
+            padding-bottom: 16px;
+            margin-bottom: 32px;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .subtitle {
+            color: #9aa0a8;   /* muted grey for secondary text */
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .chart-container {
+            background-color: #1b1e24;   /* slightly lighter than the page background */
+            border: 1px solid #2a2d33;
+            border-radius: 6px;
+            padding: 24px;
+            max-width: 900px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Employee Dashboard</h1>
+        <div class="subtitle">Average salary by department, live from store.db</div>
+    </header>
+
+    <div class="chart-container">
+        <!--
+            This is where the Plotly chart actually gets inserted.
+            fig.to_html(full_html=False) in main.py generated this snippet,
+            and Jinja2 drops it in here exactly as-is.
+        -->
+        {{ chart_html | safe }}
+    </div>
+
+</body>
+</html>
