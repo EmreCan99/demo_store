@@ -21,6 +21,8 @@ from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import plotly.express as px
 from fastapi.responses import Response
+from analytics import average_salary_by_department
+
 
 from models import Employee, Base  # our table model from models.py
 
@@ -115,44 +117,15 @@ def get_employees():
 # 4. HTML DASHBOARD ROUTE
 # ---------------------------------------------------------------------------
 
+
 @app.get("/dashboard")
 def dashboard(request: Request):
-    """
-    This route returns a full HTML page instead of JSON.
-    'request: Request' is required by Jinja2Templates so it knows which
-    request it's responding to -- FastAPI passes this in automatically.
-    """
     db = SessionLocal()
     employees = db.query(Employee).all()
     db.close()
 
-    # pandas turns our list of Employee objects into a table-like structure
-    # (a DataFrame), which makes grouping/aggregating much easier than doing
-    # it by hand with loops.
-    df = pd.DataFrame(
-        [{"department": e.department, "salary": e.salary} for e in employees]
-    )
+    chart_html = average_salary_by_department(employees)
 
-    # Group all employees by department and calculate the average salary
-    # in each one -- equivalent to:
-    #   SELECT department, AVG(salary) FROM employees GROUP BY department;
-    avg_salary_by_dept = df.groupby("department", as_index=False)["salary"].mean()
-
-    # Plotly builds an interactive bar chart from that grouped data.
-    fig = px.bar(
-        avg_salary_by_dept,
-        x="department",
-        y="salary",
-        title="Average Salary by Department",
-    )
-
-    # Converts the chart into an HTML snippet (a <div> with embedded JS)
-    # that we can drop directly into our template.
-    chart_html = fig.to_html(full_html=False)
-
-    # TemplateResponse renders templates/dashboard.html, passing in the
-    # variables it needs -- here, just the chart's HTML snippet.
-    # This is the same idea as res.render('dashboard', { chart: ... }) in Express/EJS.
     return templates.TemplateResponse(
         request,
         "dashboard.html",
